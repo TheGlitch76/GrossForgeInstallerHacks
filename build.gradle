@@ -1,0 +1,55 @@
+plugins {
+    id 'java-library'
+	id 'maven-publish'
+}
+
+group 'net.patchworkmc'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+repositories {
+    mavenCentral()
+	maven {
+		name = "Forge"
+		url = 'https://files.minecraftforge.net/maven/'
+	}
+	maven {
+		name = 'Fabric'
+		url = 'https://maven.fabricmc.net/'
+	}
+}
+
+dependencies {
+	implementation 'net.minecraftforge:installer:2.0.15'
+	runtimeOnly 'net.sf.jopt-simple:jopt-simple:5.0.4' // forge installer POM is broken
+
+	implementation "commons-io:commons-io:2.6" // Patchwork-patcher has this dependency, so it's fine
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+	archiveClassifier.set 'sources'
+	from sourceSets.main.allSource
+}
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			pom {
+				name = project.name
+				description = project.description
+				url = "https://github.com/patchworkmc/GrossForgeInstallerHacks"
+
+				scm {
+					url = "https://github.com/patchworkmc/GrossForgeInstallerHacks"
+				}
+			}
+
+			// add all the jars that should be included when publishing to maven
+			afterEvaluate {
+				artifact jar
+				artifact sourcesJar
+			}
+		}
+	}
+}
